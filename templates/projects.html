@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Projects | Vibe Coded{% endblock %}
+
+{% block content %}
+{% set projects = [
+  {
+    "title": "Vibe Coded Studio",
+    "summary": "Design-first web studio platform with custom component library.",
+    "stack": "Flask · Tailwind · PostgreSQL",
+    "href": "https://github.com/",
+    "image": "images/placeholder-1.svg"
+  },
+  {
+    "title": "Insightful Analytics",
+    "summary": "Data pipelines and dashboards that surface actionable insights.",
+    "stack": "Python · Airflow · BigQuery",
+    "href": "https://github.com/",
+    "image": "images/placeholder-2.svg"
+  },
+  {
+    "title": "Realtime Support Chat",
+    "summary": "Event-driven messaging that scales to thousands of live users.",
+    "stack": "FastAPI · Redis Streams · React",
+    "href": "https://github.com/",
+    "image": "images/placeholder-3.svg"
+  },
+  {
+    "title": "DevOps Command Center",
+    "summary": "Operational tooling for release health and observability.",
+    "stack": "Docker · Grafana · Terraform",
+    "href": "https://github.com/",
+    "image": "images/placeholder-4.svg"
+  },
+  {
+    "title": "AI Pair Programmer",
+    "summary": "AI-assisted tooling that accelerates code review loops.",
+    "stack": "Python · LangChain · OpenAI",
+    "href": "https://github.com/",
+    "image": "images/placeholder-5.svg"
+  }
+] %}
+
+<section class="page-header">
+  <h1>Projects</h1>
+  <p>Featured builds that showcase my approach to product-minded engineering.</p>
+</section>
+
+<section class="carousel-section">
+  <div class="carousel-copy">
+    <h2>Rolling highlight reel</h2>
+    <p>Scroll or tap to explore. Each card links out, so you can dive deeper into the repo or case study when it's ready.</p>
+  </div>
+  <div class="project-carousel" role="region" aria-label="Project highlights carousel">
+    <div class="carousel-track">
+      {% for project in projects + projects %}
+      <a class="carousel-card{% if loop.index > projects|length %} is-clone{% endif %}" href="{{ project.href }}" target="_blank" rel="noreferrer noopener">
+        <img
+          class="project-image"
+          src="{{ url_for('static', filename=project.image) }}"
+          alt="Placeholder visual for {{ project.title }}"
+          loading="lazy"
+        >
+        <span class="project-name">{{ project.title }}</span>
+        <span class="project-tagline">{{ project.summary }}</span>
+        <span class="project-stack">{{ project.stack }}</span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  <p class="carousel-hint">Want a deeper dive? Pick any card to jump to the GitHub repo or bookmark this page—full write-ups are on the way.</p>
+</section>
+
+<section class="project-details">
+  <h2>Case studies in progress</h2>
+  <p>
+    I'm curating long-form project breakdowns that cover architecture diagrams, technical decisions, and measurable impact.
+    Check back soon or reach out if you'd like a walkthrough now.
+  </p>
+</section>
+{% endblock %}

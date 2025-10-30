@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Home | Vibe Coded{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="hero-text">
+    <span class="eyebrow">Software Engineer · Builder · Lifelong Learner</span>
+    <h1>Hi, I'm Kenneth.</h1>
+    <p>
+      I build reliable, polished software experiences that feel as good as they look.
+      From back-end APIs to front-end experiences, I love shipping features that make a difference.
+    </p>
+    <div class="cta-group">
+      <a class="btn primary" href="{{ url_for('projects') }}">See My Work</a>
+      <a class="btn secondary" href="{{ url_for('contact') }}">Let's Collaborate</a>
+    </div>
+  </div>
+  <div class="hero-card">
+    <h2>Quick Stats</h2>
+    <ul>
+      <li><span>Location</span>Remote · Open to relocation</li>
+      <li><span>Specialties</span>Python, Flask, React, Cloud</li>
+      <li><span>Currently</span>Experimenting with AI-assisted tooling</li>
+    </ul>
+  </div>
+</section>
+
+<section class="highlight-grid">
+  <article>
+    <h3>Product-minded engineer</h3>
+    <p>I lead projects end-to-end—from whiteboard to production—and deliver maintainable, testable code.</p>
+  </article>
+  <article>
+    <h3>System design</h3>
+    <p>I enjoy breaking down complex systems into robust, scalable services with thoughtful trade-offs.</p>
+  </article>
+  <article>
+    <h3>Collaboration</h3>
+    <p>Docs, RFCs, async updates, pair programming—I thrive in collaborative teams.</p>
+  </article>
+</section>
+{% endblock %}
