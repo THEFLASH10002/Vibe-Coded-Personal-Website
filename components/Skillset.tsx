@@ -26,7 +26,6 @@ import {
 } from 'react-icons/si'
 import { 
   DiMysql,
-  DiCsharp,
 } from 'react-icons/di'
 import { IconType } from 'react-icons'
 import gsap from 'gsap'
@@ -46,7 +45,7 @@ export default function Skillset() {
   const descRef = useRef<HTMLParagraphElement>(null)
   const glowRefs = useRef<(HTMLDivElement | null)[]>([])
   const [mousePositions, setMousePositions] = useState<{ x: number; y: number }[]>([])
-  const glowAnimations = useRef<gsap.core.Tween[]>([])
+  const glowAnimations = useRef<(gsap.core.Tween | null)[]>([])
 
   useEffect(() => {
     if (typeof window === 'undefined' || !sectionRef.current) return
@@ -117,8 +116,9 @@ export default function Skillset() {
       const glowEl = glowRefs.current[index]
       if (glowEl) {
         // Kill existing animation for this glow
-        if (glowAnimations.current[index]) {
-          glowAnimations.current[index].kill()
+        const existingAnimation = glowAnimations.current[index]
+        if (existingAnimation) {
+          existingAnimation.kill()
         }
         // Create smooth animation to new position
         glowAnimations.current[index] = gsap.to(glowEl, {
@@ -135,7 +135,6 @@ export default function Skillset() {
     const iconMap: Record<string, IconType> = {
       'Python': SiPython,
       'C++': SiCplusplus,
-      'C#': DiCsharp,
       'JavaScript': SiJavascript,
       'SQL': DiMysql,
       'HTML': SiHtml5,

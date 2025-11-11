@@ -177,15 +177,17 @@ export default function ProjectsPage() {
 
         // Add pause/resume listeners to the carousel container
         const carouselContainer = carouselRef.current
-        carouselContainer.addEventListener('mouseenter', pauseAnimation)
-        carouselContainer.addEventListener('mouseleave', resumeAnimation)
+        if (carouselContainer) {
+          carouselContainer.addEventListener('mouseenter', pauseAnimation)
+          carouselContainer.addEventListener('mouseleave', resumeAnimation)
 
-        cleanup = () => {
-          carouselContainer.removeEventListener('mouseenter', pauseAnimation)
-          carouselContainer.removeEventListener('mouseleave', resumeAnimation)
-          if (rafId !== null) {
-            cancelAnimationFrame(rafId)
-            rafId = null
+          cleanup = () => {
+            carouselContainer.removeEventListener('mouseenter', pauseAnimation)
+            carouselContainer.removeEventListener('mouseleave', resumeAnimation)
+            if (rafId !== null) {
+              cancelAnimationFrame(rafId)
+              rafId = null
+            }
           }
         }
       }
