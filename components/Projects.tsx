@@ -38,7 +38,6 @@ export default function Projects() {
       description: 'Built for an NVIDIA 2-hour hackathon using Nemotron and NIM in a VR environment. The immersive experience dynamically changes when speaking to an AI bot, featuring real-time voice interaction and responsive environment manipulation. Integrated OpenAI Whisper for speech recognition and NVIDIA Nemotron-Nano 9B for AI responses.',
       technologies: ['Unity', 'C#', 'VR/XR', 'Flask', 'OpenAI Whisper', 'NVIDIA Nemotron', 'NIM', 'FFmpeg', 'Oculus/OpenXR', 'ElevenLabs'],
       video: '/videos/vr-demo.mp4',
-      image: '/images/vr-tech-stack.png',
     },
     {
       title: 'Machine Learning Project',
