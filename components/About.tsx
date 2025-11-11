@@ -2,13 +2,13 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import Section from './ui/Section'
 import Container from './ui/Container'
 import Heading from './ui/Heading'
 import Card from './ui/Card'
+import StarField from './StarField'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -27,43 +27,32 @@ export default function About() {
   const cardRef = useRef<HTMLDivElement>(null)
   const carouselRef = useRef<HTMLDivElement>(null)
   const carouselContainerRef = useRef<HTMLDivElement>(null)
-  const [currentIndex, setCurrentIndex] = useState(0)
+  const [currentIndex, setCurrentIndex] = useState(images.length) // Start in middle set
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
-  const [imagesPerView, setImagesPerView] = useState(3) // Number of images to show at once
+  const animationRef = useRef<gsap.core.Tween | null>(null)
+  const interestGlowRef = useRef<HTMLDivElement | null>(null)
+  const [interestMousePosition, setInterestMousePosition] = useState({ x: 50, y: 50 })
+  const interestGlowAnimation = useRef<gsap.core.Tween | null>(null)
+  const imagesPerView = 3
 
-  // Update imagesPerView based on screen size
-  useEffect(() => {
-    if (typeof window === 'undefined') return
 
-    const updateImagesPerView = () => {
-      const width = window.innerWidth
-      let newImagesPerView = 3
-      if (width < 768) {
-        newImagesPerView = 1 // Mobile: 1 image
-      } else if (width < 1024) {
-        newImagesPerView = 2 // Tablet: 2 images
-      } else {
-        newImagesPerView = 3 // Desktop: 3 images
-      }
-      setImagesPerView(newImagesPerView)
-      
-      // Clamp currentIndex to valid range when imagesPerView changes
-      setCurrentIndex((prev) => {
-        const maxIndex = Math.max(0, images.length - newImagesPerView)
-        return Math.min(prev, maxIndex)
-      })
-    }
-
-    updateImagesPerView()
-    window.addEventListener('resize', updateImagesPerView)
-    return () => window.removeEventListener('resize', updateImagesPerView)
-  }, [images.length])
-
-  // Carousel auto-scroll with pause on hover
+  // Infinite carousel auto-scroll with pause on hover
   useEffect(() => {
     if (typeof window === 'undefined') return
 
     let isPaused = false
+    
+    const goToNext = () => {
+      setCurrentIndex((prev) => {
+        // Always increment - we'll handle the loop in the animation
+        const next = prev + 1
+        // When we've scrolled through one full set, reset to start of middle set
+        if (next >= images.length * 2) {
+          return images.length
+        }
+        return next
+      })
+    }
     
     const startInterval = () => {
       if (intervalRef.current) {
@@ -71,16 +60,9 @@ export default function About() {
       }
       intervalRef.current = setInterval(() => {
         if (!isPaused) {
-          setCurrentIndex((prev) => {
-            // Scroll by one image at a time
-            // Maximum index is (images.length - imagesPerView) to show the last set of images
-            const maxIndex = Math.max(0, images.length - imagesPerView)
-            const next = prev + 1
-            // Loop back to start if we've reached the end
-            return next > maxIndex ? 0 : next
-          })
+          goToNext()
         }
-      }, 3000) // Change image every 3 seconds
+      }, 3000) // Change every 3 seconds
     }
 
     startInterval()
@@ -112,81 +94,76 @@ export default function About() {
         clearInterval(intervalRef.current)
       }
     }
-  }, [imagesPerView])
+  }, [images.length])
 
-  // Carousel animation with GSAP
+  // Horizontal carousel animation with GSAP - infinite loop
   useEffect(() => {
     if (typeof window === 'undefined' || !carouselRef.current || !carouselContainerRef.current) return
 
     const carousel = carouselRef.current
     const container = carouselContainerRef.current
-    if (!container) return
-
-    // Calculate translateX based on container width and images per view
+    
     const updatePosition = () => {
-      // Use a small delay to ensure container is fully rendered
       setTimeout(() => {
         const containerWidth = container.offsetWidth
         if (containerWidth === 0) {
-          // Retry if container not ready
           requestAnimationFrame(updatePosition)
           return
         }
         
-        // Get all image slot elements
         const imageSlots = carousel.children
         if (!imageSlots || imageSlots.length === 0) {
           requestAnimationFrame(updatePosition)
           return
         }
         
-        // Calculate slide width using the actual rendered positions
-        // This ensures perfect alignment when scrolling
         const firstImageSlot = imageSlots[0] as HTMLElement
-        const secondImageSlot = imageSlots[1] as HTMLElement
-        
         if (!firstImageSlot) {
           requestAnimationFrame(updatePosition)
           return
         }
         
-        // Calculate slide width by measuring the actual distance between images
-        // This ensures perfect alignment when scrolling
+        // Calculate slide width (image width + gap)
         let slideWidth = firstImageSlot.offsetWidth
         
-        if (secondImageSlot) {
-          // Measure the actual distance from the left edge of first image to left edge of second image
-          // This automatically accounts for the gap
+        if (imageSlots[1]) {
           const firstRect = firstImageSlot.getBoundingClientRect()
-          const secondRect = secondImageSlot.getBoundingClientRect()
+          const secondRect = (imageSlots[1] as HTMLElement).getBoundingClientRect()
           const carouselRect = carousel.getBoundingClientRect()
           
-          // Calculate positions relative to the carousel container
           const firstLeft = firstRect.left - carouselRect.left
           const secondLeft = secondRect.left - carouselRect.left
           
-          // The slide width is the distance between the start of consecutive images
           slideWidth = secondLeft - firstLeft
         }
         
-        // Translate by currentIndex to align perfectly with images
-        // This ensures each scroll moves exactly one image slot (including gap)
+        // Calculate translateX - move carousel to show current set of images
         const translateX = -currentIndex * slideWidth
         
-        gsap.to(carousel, {
+        if (animationRef.current) {
+          animationRef.current.kill()
+        }
+        
+        animationRef.current = gsap.to(carousel, {
           x: translateX,
           duration: 0.8,
           ease: 'power2.inOut',
+          onComplete: () => {
+            // When we reach the end of the second set, instantly jump back to start of middle set
+            // This is invisible because the images are identical
+            if (currentIndex >= images.length * 2) {
+              gsap.set(carousel, { x: -images.length * slideWidth })
+              setCurrentIndex(images.length)
+            }
+          }
         })
       }, 100)
     }
 
-    // Use requestAnimationFrame to ensure container is sized
     const rafId = requestAnimationFrame(() => {
       updatePosition()
     })
 
-    // Update on window resize
     const handleResize = () => {
       updatePosition()
     }
@@ -195,48 +172,11 @@ export default function About() {
     return () => {
       cancelAnimationFrame(rafId)
       window.removeEventListener('resize', handleResize)
+      if (animationRef.current) {
+        animationRef.current.kill()
+      }
     }
-  }, [currentIndex, imagesPerView])
-
-  const goToPrevious = () => {
-    setCurrentIndex((prev) => {
-      const maxIndex = Math.max(0, images.length - imagesPerView)
-      const next = prev - 1
-      // Loop to the end if we go before the start
-      return next < 0 ? maxIndex : next
-    })
-    // Reset auto-scroll timer
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current)
-    }
-    intervalRef.current = setInterval(() => {
-      setCurrentIndex((prev) => {
-        const maxIndex = Math.max(0, images.length - imagesPerView)
-        const next = prev + 1
-        return next > maxIndex ? 0 : next
-      })
-    }, 3000)
-  }
-
-  const goToNext = () => {
-    setCurrentIndex((prev) => {
-      const maxIndex = Math.max(0, images.length - imagesPerView)
-      const next = prev + 1
-      // Loop back to start if we've reached the end
-      return next > maxIndex ? 0 : next
-    })
-    // Reset auto-scroll timer
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current)
-    }
-    intervalRef.current = setInterval(() => {
-      setCurrentIndex((prev) => {
-        const maxIndex = Math.max(0, images.length - imagesPerView)
-        const next = prev + 1
-        return next > maxIndex ? 0 : next
-      })
-    }, 3000)
-  }
+  }, [currentIndex, images.length])
 
   useEffect(() => {
     if (typeof window === 'undefined' || !sectionRef.current) return
@@ -309,126 +249,126 @@ export default function About() {
     return () => ctx.revert()
   }, [])
 
-  const goToSlide = (index: number) => {
-    const maxIndex = Math.max(0, images.length - imagesPerView)
-    // Clamp index to valid range
-    const clampedIndex = Math.min(index, maxIndex)
-    setCurrentIndex(clampedIndex)
-    // Reset auto-scroll timer
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current)
+  // Smoothly animate glow position for interest box
+  useEffect(() => {
+    const pos = interestMousePosition
+    if (!pos || typeof pos.x !== 'number' || typeof pos.y !== 'number') {
+      return
     }
-    intervalRef.current = setInterval(() => {
-      setCurrentIndex((prev) => {
-        const maxIndex = Math.max(0, images.length - imagesPerView)
-        const next = prev + 1
-        return next > maxIndex ? 0 : next
+    const glowEl = interestGlowRef.current
+    if (glowEl) {
+      // Kill existing animation
+      if (interestGlowAnimation.current) {
+        interestGlowAnimation.current.kill()
+      }
+      // Create smooth animation to new position
+      interestGlowAnimation.current = gsap.to(glowEl, {
+        left: `${pos.x}%`,
+        top: `${pos.y}%`,
+        duration: 0.3,
+        ease: 'power2.out',
       })
-    }, 3000)
-  }
+    }
+  }, [interestMousePosition])
+
 
   return (
-    <Section id="about" ref={sectionRef} className="bg-dark-charcoal">
-      <Container size="xl">
+    <Section id="about" ref={sectionRef} className="bg-black relative">
+      <StarField count={50} />
+      <Container size="xl" className="relative z-10">
         <Heading ref={headingRef} size="lg" className="mb-12 md:mb-16">
           About Me
         </Heading>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-start mb-12">
           <div ref={textRef} className="">
-            <p className="text-white/80 text-base md:text-lg leading-relaxed mb-6">
-              I am a Software Engineer passionate about creating impactful solutions. When I'm not coding, I enjoy photography, sports, and creative hobbies.
-            </p>
             <p className="text-white/80 text-base md:text-lg leading-relaxed">
-              I also like to explore new technologies and work on personal projects that push the boundaries of web development and 3D experiences.
+              Hey, I'm Kennedy Gregg a developer who loves turning ideas into code. Whether it's AI, web apps, or game projects, I'm always building something new that challenges me to think bigger.
             </p>
           </div>
-          <Card ref={cardRef} className="p-6 md:p-8">
-            <Heading as="h3" size="sm" className="mb-4">
-              Interests
-            </Heading>
-            <ul className="space-y-2 text-white/80 text-base md:text-lg">
-              <li>• Currently doing esports at Howard University</li>
-              <li>• I love to cook</li>
-              <li>• Doing fun projects, coding projects</li>
-              <li>• Running</li>
-            </ul>
+          <Card 
+            ref={cardRef} 
+            className="p-6 md:p-8 relative overflow-hidden group"
+            onMouseMove={(e) => {
+              const rect = e.currentTarget.getBoundingClientRect()
+              const x = ((e.clientX - rect.left) / rect.width) * 100
+              const y = ((e.clientY - rect.top) / rect.height) * 100
+              setInterestMousePosition({ x, y })
+            }}
+            onMouseLeave={() => {
+              setInterestMousePosition({ x: 50, y: 50 })
+            }}
+          >
+            {/* Orange glow effect that follows mouse */}
+            <div
+              ref={interestGlowRef}
+              className="absolute pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              style={{
+                left: '50%',
+                top: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: '300px',
+                height: '300px',
+                background: 'radial-gradient(circle, rgba(255, 119, 0, 0.4) 0%, rgba(255, 119, 0, 0.2) 40%, transparent 70%)',
+                filter: 'blur(40px)',
+                zIndex: 0,
+              }}
+            />
+            <div className="relative z-10">
+              <Heading as="h3" size="sm" className="mb-4">
+                Interests
+              </Heading>
+              <ul className="space-y-2 text-white/80 text-base md:text-lg">
+                <li>• Currently doing esports at Howard University</li>
+                <li>• I love to cook</li>
+                <li>• Doing fun coding projects</li>
+                <li>• Running</li>
+              </ul>
+            </div>
           </Card>
         </div>
 
-        {/* Image Carousel */}
+        {/* Image Carousel - Horizontal Scrolling - Shows 3 images */}
         <div ref={carouselContainerRef} className="relative w-full max-w-5xl mx-auto">
-          <div className="relative overflow-hidden rounded-xl" style={{ padding: '0' }}>
-            {/* Left Navigation Button */}
-            <button
-              onClick={goToPrevious}
-              className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-10 bg-black/60 hover:bg-black/80 text-white p-2 rounded-full transition-all duration-200 hover:scale-110 border border-white/20"
-              aria-label="Previous image"
-            >
-              <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
-            </button>
-
-            {/* Right Navigation Button */}
-            <button
-              onClick={goToNext}
-              className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-10 bg-black/60 hover:bg-black/80 text-white p-2 rounded-full transition-all duration-200 hover:scale-110 border border-white/20"
-              aria-label="Next image"
-            >
-              <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
-            </button>
-
+          <div className="relative overflow-hidden" style={{ padding: '0', margin: '0' }}>
             <div
               ref={carouselRef}
               className="flex items-center"
               style={{ 
-                width: `calc(100% * ${images.length} / ${imagesPerView} + ${(images.length - imagesPerView) * 0.375}rem)`,
                 willChange: 'transform',
-                gap: '0.375rem'
+                gap: '0.75rem'
               }}
             >
-              {images.map((image, index) => {
-                // Each image container takes up exactly (100% / imagesPerView) of the visible container
-                const imageWidthPercent = 100 / imagesPerView
+              {/* Render images with duplicates for seamless infinite loop */}
+              {[...images, ...images, ...images].map((image, index) => {
+                const actualIndex = index % images.length
                 return (
                   <div
-                    key={index}
-                    className="relative flex-shrink-0 flex items-center justify-center"
+                    key={`${image}-${index}`}
+                    className="relative flex-shrink-0 inline-block"
                     style={{ 
-                      width: `calc(${imageWidthPercent}% - 0.375rem * ${(imagesPerView - 1) / imagesPerView})`
+                      height: '250px',
+                      lineHeight: '0'
                     }}
                   >
                     <Image
                       src={image}
-                      alt={`About me image ${index + 1}`}
+                      alt={`About me image ${actualIndex + 1}`}
                       width={500}
                       height={350}
-                      className="max-h-[250px] md:max-h-[350px] rounded-xl border-2 border-white/30 shadow-2xl w-full h-auto"
+                      className="h-full w-auto rounded-xl border-2 border-white/30 shadow-2xl"
                       style={{ 
                         objectFit: 'contain',
-                        display: 'block'
+                        display: 'block',
+                        maxHeight: '250px',
+                        height: '250px'
                       }}
-                      sizes="(max-width: 768px) 90vw, (max-width: 1024px) 45vw, 32vw"
-                      priority={index < imagesPerView}
+                      sizes="(max-width: 768px) 250px, (max-width: 1024px) 300px, 350px"
+                      priority={index < imagesPerView * 2}
                     />
                   </div>
                 )
               })}
             </div>
-          </div>
-
-          {/* Carousel Indicators */}
-          <div className="flex justify-center gap-2 mt-6">
-            {images.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => goToSlide(index)}
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  index === currentIndex
-                    ? 'bg-orange w-8'
-                    : 'bg-white/30 w-2 hover:bg-white/50'
-                }`}
-                aria-label={`Go to slide ${index + 1}`}
-              />
-            ))}
           </div>
         </div>
       </Container>

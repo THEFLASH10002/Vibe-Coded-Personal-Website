@@ -247,8 +247,13 @@ export default function Experience() {
   }, [])
 
   return (
-    <Section id="experience" ref={sectionRef} className="bg-dark-charcoal">
-      <Container size="xl">
+    <>
+      <Section 
+        id="experience" 
+        ref={sectionRef} 
+        className="bg-dark-charcoal relative"
+      >
+        <Container size="xl">
         <Heading ref={headingRef} size="lg" className="mb-12 md:mb-16">
           Experience
         </Heading>
@@ -266,7 +271,18 @@ export default function Experience() {
           </div>
         </div>
       </Container>
-    </Section>
+      </Section>
+      {/* Curved bottom border */}
+      <div 
+        className="bg-dark-charcoal relative"
+        style={{
+          height: '80px',
+          borderBottomLeftRadius: '50% 80px',
+          borderBottomRightRadius: '50% 80px',
+          marginTop: '0'
+        }}
+      />
+    </>
   )
 }
 

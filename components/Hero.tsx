@@ -81,6 +81,7 @@ export default function Hero() {
       {/* Unicorn Studio Background */}
       <div className="absolute inset-0 w-full h-full z-0 bg-black">
         <UnicornStudioBackground
+          projectId="6MlPUPYHp7oLd8DzPVBt"
           className="absolute inset-0 w-full h-full"
           style={{
             width: '100%',

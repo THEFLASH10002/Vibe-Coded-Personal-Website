@@ -79,22 +79,26 @@ export default function Header() {
   ]
 
   return (
-    <header 
+      <header 
       ref={headerRef}
       className="fixed top-0 left-0 right-0 z-50 px-4 md:px-6 py-6 md:py-8 pointer-events-none"
     >
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6 relative md:justify-center">
           {/* Logo */}
-          <div className="w-10 h-10 md:w-12 md:h-12 bg-white rounded-full flex items-center justify-center shrink-0 pointer-events-auto cursor-pointer hover:scale-110 transition-transform duration-200">
+          <div className="w-10 h-10 md:w-12 md:h-12 bg-white rounded-full flex items-center justify-center shrink-0 pointer-events-auto cursor-pointer hover:scale-110 transition-transform duration-200 order-1 md:order-1 md:absolute md:left-0">
             <span className="text-black font-bold text-base md:text-lg">KG</span>
           </div>
 
-          {/* Glassmorphism Navigation Bar */}
-          <nav className="relative w-full md:w-auto flex-1 max-w-5xl mx-2 md:mx-4 pointer-events-auto">
+          {/* Glassmorphism Navigation Bar - Centered */}
+          <nav className="relative w-full md:w-auto pointer-events-auto order-3 md:order-2 md:mx-auto">
             <div className={clsx(
               "relative bg-black/60 backdrop-blur-2xl border border-gray-800/50 rounded-full px-5 md:px-8 lg:px-12 py-2.5 md:py-3.5 shadow-2xl ring-1 ring-white/5 transition-all duration-300",
               scrolled && "bg-black/70 shadow-2xl"
-            )}>
+            )}
+            style={{
+              boxShadow: '0 0 20px rgba(255, 119, 0, 0.3), 0 0 40px rgba(255, 119, 0, 0.2), 0 0 60px rgba(255, 119, 0, 0.1), 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+            }}
+            >
               {/* Glossy overlay effect */}
               <div className="absolute inset-0 rounded-full bg-gradient-to-b from-white/10 via-white/3 to-transparent pointer-events-none opacity-40"></div>
               <div className="relative flex flex-wrap items-center justify-center gap-3 md:gap-5 lg:gap-7 xl:gap-9 overflow-x-auto scrollbar-hide">
@@ -129,7 +133,7 @@ export default function Header() {
           </nav>
 
           {/* Social Icons */}
-          <div className="flex gap-3 md:gap-4 pointer-events-auto">
+          <div className="flex gap-3 md:gap-4 pointer-events-auto order-2 md:order-3 md:absolute md:right-0">
             {[
               { href: 'https://github.com/THEFLASH10002', icon: Github, label: 'GitHub' },
               { href: 'https://www.linkedin.com/in/kennedy-gregg-52543128a/', icon: Linkedin, label: 'LinkedIn' },

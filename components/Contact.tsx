@@ -10,6 +10,7 @@ import Heading from './ui/Heading'
 import Input from './ui/Input'
 import Textarea from './ui/Textarea'
 import Button from './ui/Button'
+import StarField from './StarField'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -105,8 +106,9 @@ export default function Contact() {
   }, [])
 
   return (
-    <Section id="contact" ref={sectionRef} className="bg-black">
-      <Container size="md">
+    <Section id="contact" ref={sectionRef} className="bg-black relative">
+      <StarField count={40} />
+      <Container size="md" className="relative z-10">
         <Heading ref={headingRef} size="lg" className="mb-6 md:mb-8">
           Keep in touch.
         </Heading>
@@ -138,10 +140,10 @@ export default function Contact() {
               <div className="flex items-center gap-2 text-white/80">
                 <Mail className="w-5 h-5" />
                 <a 
-                  href="mailto:contact@kennedygregg.com" 
+                  href="mailto:kennedygregg1211@gmail.com" 
                   className="hover:text-orange transition-colors focus:outline-none focus:ring-2 focus:ring-orange/50 focus:ring-offset-2 focus:ring-offset-black rounded"
                 >
-                  contact@kennedygregg.com
+                  kennedygregg1211@gmail.com
                 </a>
               </div>
               <div className="flex gap-4">

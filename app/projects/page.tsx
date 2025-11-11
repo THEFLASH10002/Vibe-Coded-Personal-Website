@@ -32,10 +32,17 @@ export default function ProjectsPage() {
       image: null,
     },
     {
+      title: 'VR AI Assistant',
+      description: 'Built for an NVIDIA 2-hour hackathon using Nemotron and NIM in a VR environment. The immersive experience dynamically changes when speaking to an AI bot, featuring real-time voice interaction and responsive environment manipulation. Integrated OpenAI Whisper for speech recognition and NVIDIA Nemotron-Nano 9B for AI responses.',
+      technologies: ['Unity', 'C#', 'VR/XR', 'Flask', 'OpenAI Whisper', 'NVIDIA Nemotron', 'NIM', 'FFmpeg', 'Oculus/OpenXR', 'ElevenLabs'],
+      video: '/videos/vr-demo.mp4',
+      image: '/images/vr-tech-stack.png',
+    },
+    {
       title: 'Vocalytics',
       description: 'Developed a Raspberry Pi-powered tool using Python, OpenCV, and Media Pipe to track speech patterns and posture in real-time, providing feedback for communication skill improvement. Placed 2nd overall at Morgan Hacks Hackathon.',
       technologies: ['Python', 'Flask', 'SQLite', 'OpenCV', 'Media Pipe', 'Gemini AI'],
-      image: null,
+      image: '/images/morganhackpic.jpg',
     },
     {
       title: 'Machine Learning Project',

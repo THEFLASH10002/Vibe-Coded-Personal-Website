@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Code, Brain, Database, Wrench } from 'lucide-react'
 import { 
   SiPython,
@@ -44,6 +44,9 @@ export default function Skillset() {
   const headingRef = useRef<HTMLHeadingElement>(null)
   const cardsRef = useRef<HTMLDivElement[]>([])
   const descRef = useRef<HTMLParagraphElement>(null)
+  const glowRefs = useRef<(HTMLDivElement | null)[]>([])
+  const [mousePositions, setMousePositions] = useState<{ x: number; y: number }[]>([])
+  const glowAnimations = useRef<gsap.core.Tween[]>([])
 
   useEffect(() => {
     if (typeof window === 'undefined' || !sectionRef.current) return
@@ -103,6 +106,30 @@ export default function Skillset() {
 
     return () => ctx.revert()
   }, [])
+
+  // Smoothly animate glow positions
+  useEffect(() => {
+    mousePositions.forEach((pos, index) => {
+      // Check if pos exists and has x and y properties
+      if (!pos || typeof pos.x !== 'number' || typeof pos.y !== 'number') {
+        return
+      }
+      const glowEl = glowRefs.current[index]
+      if (glowEl) {
+        // Kill existing animation for this glow
+        if (glowAnimations.current[index]) {
+          glowAnimations.current[index].kill()
+        }
+        // Create smooth animation to new position
+        glowAnimations.current[index] = gsap.to(glowEl, {
+          left: `${pos.x}%`,
+          top: `${pos.y}%`,
+          duration: 0.3,
+          ease: 'power2.out',
+        })
+      }
+    })
+  }, [mousePositions])
   // Icon mapping for technologies
   const getTechIcon = (tech: string): IconType | null => {
     const iconMap: Record<string, IconType> = {
@@ -160,14 +187,27 @@ export default function Skillset() {
   ]
 
   return (
-    <Section id="skillset" ref={sectionRef} className="bg-black">
-      <Container size="xl">
+    <>
+      <Section 
+        id="skillset" 
+        ref={sectionRef} 
+        className="bg-dark-charcoal relative"
+        style={{
+          borderTopLeftRadius: '50% 80px',
+          borderTopRightRadius: '50% 80px',
+          marginTop: '-80px',
+          paddingTop: '100px'
+        }}
+      >
+        <Container size="xl">
         <Heading ref={headingRef} size="lg" className="mb-12 md:mb-16 text-center">
           Skillset
         </Heading>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 max-w-5xl mx-auto">
           {skills.map((skill, index) => {
             const Icon = skill.icon
+            const mousePos = mousePositions[index] || { x: 50, y: 50 }
+            
             return (
               <Card 
                 key={index}
@@ -175,9 +215,43 @@ export default function Skillset() {
                   if (el) cardsRef.current[index] = el
                 }}
                 hover 
-                className="p-6 md:p-8"
+                className="p-6 md:p-8 relative overflow-hidden group"
+                onMouseMove={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect()
+                  const x = ((e.clientX - rect.left) / rect.width) * 100
+                  const y = ((e.clientY - rect.top) / rect.height) * 100
+                  setMousePositions(prev => {
+                    const newPositions = [...prev]
+                    newPositions[index] = { x, y }
+                    return newPositions
+                  })
+                }}
+                onMouseLeave={() => {
+                  setMousePositions(prev => {
+                    const newPositions = [...prev]
+                    newPositions[index] = { x: 50, y: 50 }
+                    return newPositions
+                  })
+                }}
               >
-                <div className="flex flex-col">
+                {/* Orange glow effect that follows mouse */}
+                <div
+                  ref={(el) => {
+                    glowRefs.current[index] = el
+                  }}
+                  className="absolute pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  style={{
+                    left: '50%',
+                    top: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    width: '300px',
+                    height: '300px',
+                    background: 'radial-gradient(circle, rgba(255, 119, 0, 0.4) 0%, rgba(255, 119, 0, 0.2) 40%, transparent 70%)',
+                    filter: 'blur(40px)',
+                    zIndex: 0,
+                  }}
+                />
+                <div className="flex flex-col relative z-10">
                   <div className="flex flex-col items-center mb-6">
                     {/* Technology Icons Grid */}
                     <div className="flex flex-wrap gap-3 md:gap-4 justify-center mb-4">
@@ -221,7 +295,8 @@ export default function Skillset() {
           My experience spans across languages, frameworks, AI/ML, and database technologies, giving me a well-rounded perspective on the entire development process. This allows me to effectively plan and implement system architectures that meet project needs from AI-powered solutions to full-stack applications.
         </p>
       </Container>
-    </Section>
+      </Section>
+    </>
   )
 }
 
