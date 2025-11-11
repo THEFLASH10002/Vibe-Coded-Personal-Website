@@ -16,6 +16,16 @@ import StarField from './StarField'
 
 gsap.registerPlugin(ScrollTrigger)
 
+interface Project {
+  title: string
+  shortDescription: string
+  description: string
+  technologies: string[]
+  demoUrl?: string
+  video?: string
+  image?: string | null
+}
+
 export default function Projects() {
   const sectionRef = useRef<HTMLElement>(null)
   const headingRef = useRef<HTMLHeadingElement>(null)
@@ -23,7 +33,7 @@ export default function Projects() {
   const cardsRef = useRef<HTMLDivElement[]>([])
   const buttonRef = useRef<HTMLAnchorElement>(null)
 
-  const projects = [
+  const projects: Project[] = [
     {
       title: 'Eido',
       shortDescription: 'Full-stack AI learning platform with interactive 3D knowledge graph',
@@ -31,6 +41,7 @@ export default function Projects() {
       technologies: ['FastAPI', 'Next.js', 'Supabase', 'OpenAI', 'Three.js', 'PostgreSQL'],
       demoUrl: 'https://www.loom.com/share/99480c7998724b5384d7e94962d6e119',
       video: '/videos/eido.mp4',
+      image: null,
     },
     {
       title: 'VR AI Assistant',
@@ -38,6 +49,7 @@ export default function Projects() {
       description: 'Built for an NVIDIA 2-hour hackathon using Nemotron and NIM in a VR environment. The immersive experience dynamically changes when speaking to an AI bot, featuring real-time voice interaction and responsive environment manipulation. Integrated OpenAI Whisper for speech recognition and NVIDIA Nemotron-Nano 9B for AI responses.',
       technologies: ['Unity', 'C#', 'VR/XR', 'Flask', 'OpenAI Whisper', 'NVIDIA Nemotron', 'NIM', 'FFmpeg', 'Oculus/OpenXR', 'ElevenLabs'],
       video: '/videos/vr-demo.mp4',
+      image: null,
     },
     {
       title: 'Machine Learning Project',
@@ -45,6 +57,7 @@ export default function Projects() {
       description: 'Developed a learning AI using Python, C++, C#, and ML-Agents to complete tasks like obstacle avoidance and 2v2 soccer matches against AI opponents. Logged brain states every 5000ms to measure learning progress.',
       technologies: ['Python', 'C++', 'C#', 'ML-Agents'],
       video: '/videos/ml-agents.mp4',
+      image: null,
     },
   ]
 
