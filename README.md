@@ -1,42 +1,89 @@
-# Vibe Coded — Personal Website
+# Personal Portfolio Website
 
-A Flask-powered personal website to showcase Kenneth's experience as a software engineer. The app ships with a modern landing page, projects portfolio, about section, résumé placeholder, and contact info. Static styling is provided via a custom CSS theme.
+A modern personal portfolio website built with Next.js, TypeScript, and Tailwind CSS, designed to match a Figma design one-to-one.
+
+## Features
+
+- Responsive design with mobile-first approach
+- Smooth scroll navigation
+- Modern gradient hero section
+- Skillset showcase with interactive cards
+- Single-page layout with scrollable sections
+- Projects page (to be implemented)
+
+## Tech Stack
+
+- **Next.js 14** - React framework with App Router
+- **TypeScript** - Type-safe JavaScript
+- **Tailwind CSS** - Utility-first CSS framework
+- **Lucide React** - Icon library
 
 ## Getting Started
 
-Create and activate a Python virtual environment, install dependencies, and start the dev server:
+### Prerequisites
 
+- Node.js 18+ installed
+- npm or yarn package manager
+
+### Installation
+
+1. Install dependencies:
 ```bash
-python -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
-python app.py
+npm install
 ```
 
-The site will be available at <http://127.0.0.1:5000>. Flask's debug mode is enabled for live reloads.
+2. Run the development server:
+```bash
+npm run dev
+```
 
-## Customization
+3. Open [http://localhost:3000](http://localhost:3000) in your browser to see the result.
 
-- Update contact links and quick stats in `templates/index.html:8`.
-- Tailor the projects in `templates/projects.html:8`.
-- Replace placeholder copy across `templates/about.html`, `templates/resume.html`, and `templates/contact.html`.
-- Drop a PDF résumé into `static/documents/resume.pdf` to serve it at `/resume`.
-- Tweak the visual style in `static/css/style.css`.
+### Build for Production
+
+```bash
+npm run build
+npm start
+```
 
 ## Project Structure
 
 ```
-Vibe-Coded-Personal-Website/
-├── app.py
-├── requirements.txt
-├── templates/
-│   ├── base.html
-│   ├── index.html
-│   ├── projects.html
-│   ├── about.html
-│   ├── resume.html
-│   └── contact.html
-└── static/
-    ├── css/style.css
-    └── documents/
+/
+├── app/
+│   ├── layout.tsx       # Root layout
+│   ├── page.tsx         # Home page
+│   ├── projects/        # Projects page
+│   └── globals.css      # Global styles
+├── components/
+│   ├── Header.tsx       # Navigation header
+│   ├── Hero.tsx         # Hero section
+│   ├── Skillset.tsx     # Skillset section
+│   ├── Projects.tsx     # Projects section
+│   ├── About.tsx        # About section
+│   └── Contact.tsx      # Contact section
+└── tailwind.config.ts   # Tailwind configuration
 ```
+
+## Customization
+
+### Colors
+
+Edit `tailwind.config.ts` to customize the color palette:
+
+- `dark-teal`: #1A4B6B
+- `dark-blue`: #202A50
+- `light-blue`: #2E5A7A
+- `accent-blue`: #3A6B8A
+- `nav-blue`: #4A7BA0
+- `card-blue`: #4A7BA0
+
+### Content
+
+Update the content in each component file to match your personal information.
+
+## License
+
+MIT
+
+
